@@ -17,7 +17,7 @@ A description of all of the data structures used in this service can be found [h
 
 ## Installation
 
-This solution was developed using .NET 8.0.300. We have implemented a `classlib` and `xunit` project.
+This solution was developed using .NET 8.0.300. We have implemented a `classlib` and `webapi` project.
 
 ## Known issues and limitations
 

@@ -1,4 +1,5 @@
 ﻿using CSChatLogger.Api;
+using CSChatLogger.Entity;
 using CSChatLogger.Schema;
 using CSChatLogger.UseCase;
 
@@ -6,19 +7,67 @@ namespace CSChatLogger.Persistence
 {
     public class ChatAccountService(Context context) : ContextService(context), IChatAccount
     {
-        public void CreateChatAccount(Guid token, long chatId, CreateChatAccountInput dto)
+        public async void CreateChatAccount(Guid? token, long chatId, CreateChatAccountInput dto)
         {
-            throw new NotImplementedException();
+            // Token validation
+            ValidateAuthorization(token, chatId);
+
+            // Input validation
+            if (GetUserIsInChat(dto.account, chatId).Result)
+                throw new ConflictException();
+
+            // Implementation
+            ChatAccount chatAccount = new();
+            chatAccount.UserId = dto.account;
+            chatAccount.ChatId = chatId;
+            _context.ChatAccounts.Add(chatAccount);
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteChatAccount(Guid token, long chatId)
+        public async Task<ReadChatAccountsOutput> ReadChatAccountsAsync(Guid? token, long chatId)
         {
-            throw new NotImplementedException();
+            // Token validation
+            ValidateAuthorization(token, chatId);
+
+            // Implementation
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            ReadChatAccountsOutput output = new ReadChatAccountsOutput();
+            output.accounts = [];
+            if (chatAccounts != null)
+            {
+                foreach (ChatAccount account in chatAccounts)
+                {
+                    if (account.ChatId == chatId)
+                        output.accounts.Add(account.UserId);
+                }
+            }
+
+            return output;
         }
 
-        public ReadChatAccountsOutput ReadChatAccounts(Guid token, long chatId)
+        public async void DeleteChatAccount(Guid? token, long chatId)
         {
-            throw new NotImplementedException();
+            // Token validation
+            long accountId = ValidateAuthorization(token, chatId);
+
+            // Implementation
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            if (chatAccounts != null)
+            {
+                foreach (ChatAccount account in chatAccounts)
+                {
+                    if (account.ChatId == chatId && account.UserId == accountId)
+                    {
+                        _context.ChatAccounts.Remove(account);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+
+            // TODO: Check if any accounts remain in chat
+            // TODO: If no accounts remain in chat, delete all messages and chat
         }
     }
 }

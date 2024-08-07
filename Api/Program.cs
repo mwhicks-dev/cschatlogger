@@ -1,17 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using CSChatLogger.Api;
 using CSChatLogger.Entity;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<Context>(options => 
-    options.UseInMemoryDatabase("ChatLog"));
 
 builder.Services.AddDbContext<Context>(options => options
-    .UseSqlServer(builder.Configuration.GetConnectionString("Context")));
+    .UseSqlServer(builder.Configuration.GetConnectionString("CSChatLogger")));
+builder.Services.Configure<ConnectionStringSettings>(options => options.ConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_DB_URI"));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

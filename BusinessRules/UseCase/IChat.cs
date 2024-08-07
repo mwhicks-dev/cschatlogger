@@ -4,5 +4,5 @@ namespace CSChatLogger.UseCase;
 
 public interface IChat
 {
-	public void CreateChat(Guid token, CreateChatInput dto);
+	public void CreateChat(Guid? token, CreateChatInput dto);
 }

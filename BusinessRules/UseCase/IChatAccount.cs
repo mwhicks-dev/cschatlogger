@@ -4,9 +4,9 @@ namespace CSChatLogger.UseCase;
 
 public interface IChatAccount
 {
-	public ReadChatAccountsOutput ReadChatAccounts(Guid token, long chatId);
+	public Task<ReadChatAccountsOutput> ReadChatAccountsAsync(Guid? token, long chatId);
 	
-	public void CreateChatAccount(Guid token, long chatId, CreateChatAccountInput dto);
+	public void CreateChatAccount(Guid? token, long chatId, CreateChatAccountInput dto);
 
-	public void DeleteChatAccount(Guid token, long chatId);
+	public void DeleteChatAccount(Guid? token, long chatId);
 }

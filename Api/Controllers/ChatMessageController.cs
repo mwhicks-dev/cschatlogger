@@ -5,7 +5,7 @@ using CSChatLogger.Entity;
 
 namespace Api.Controllers
 {
-    [Route("/cschat/1/chat")]
+    [Route("/cschat/1/chat/tmp1")]
     [ApiController]
     public class ChatMessageController(Context context) : ControllerBase
     {

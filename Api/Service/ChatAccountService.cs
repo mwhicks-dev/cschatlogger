@@ -66,6 +66,7 @@ namespace CSChatLogger.Persistence
                 await _context.ChatAccounts.Where(e => e.ChatId == chatId).ExecuteDeleteAsync();
                 await _context.ChatMessages.Where(e => e.ChatId == chatId).ExecuteDeleteAsync();
                 await _context.Chats.Where(e => e.Id == chatId).ExecuteDeleteAsync();
+                await _context.SaveChangesAsync();
             }
         }
     }

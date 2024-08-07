@@ -78,7 +78,7 @@ namespace CSChatLogger.Persistence
             var chatMessage = await _context.ChatMessages.FindAsync(chatId, messageId) ?? throw new NotFoundException();
 
             chatMessage.Message = dto.message;
-            _context.ChatMessages.Add(chatMessage);
+            _context.ChatMessages.Update(chatMessage);
             await _context.SaveChangesAsync();
         }
     }

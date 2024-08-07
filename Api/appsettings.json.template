@@ -1,6 +1,6 @@
 {
   "ConnectionStrings": {
-    "CSChatLogger": "Host=127.0.0.1;Port=5555;Database=msgr;Username=postgres;Password=password;Trust Server Certificate=true;"
+    "CSChatLogger": "Host=com.hostname.your;Port=5432;Database=your_db_name;Username=your_postgres_username;Password=your_postgres_password;Trust Server Certificate=true;"
   },
   "Logging": {
     "LogLevel": {

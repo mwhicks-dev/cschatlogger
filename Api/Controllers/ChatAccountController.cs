@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CSChatLogger.Entity;
 using CSChatLogger.Schema;
 using CSChatLogger.Persistence;
 

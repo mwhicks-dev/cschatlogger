@@ -84,5 +84,33 @@ namespace CSChatLogger.Persistence
 
             return output;
         }
+
+        public async void UpdateChatMessage(Guid? token, long chatId, long messageId, UpdateChatMessageInput dto)
+        {
+            // Token validation
+            long accountId = ValidateAuthorization(token, chatId);
+
+            // Implementation
+            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>() ?? throw new NotFoundException();
+            ChatMessage? chatMessage = null;
+            foreach (ChatMessage tmp in chatMessages)
+            {
+                if (tmp.ChatId == chatId && tmp.MessageId == messageId)
+                {
+                    if (tmp.UserId != accountId)
+                        throw new UnauthorizedException();
+
+                    chatMessage = tmp;
+                    break;
+                }
+            }
+
+            if (chatMessage == null)
+                throw new NotFoundException();
+
+            chatMessage.Message = dto.message;
+            _context.ChatMessages.Add(chatMessage);
+            await _context.SaveChangesAsync();
+        }
     }
 }

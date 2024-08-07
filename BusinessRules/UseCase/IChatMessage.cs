@@ -8,5 +8,7 @@ public interface IChatMessage
 
 	public Task<ReadChatMessagesOutput> ReadChatMessages(Guid? token, long chatId);
 
+	public void UpdateChatMessage(Guid? token, long chatId, long messageId, UpdateChatMessageInput dto);
+
 	public void DeleteChatMessage(Guid? token, long chatId, long messageId);
 }

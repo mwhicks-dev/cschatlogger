@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "cAZCYFbF0RY=",
+  "dgSpecHash": "0cUaztKnQgU=",
   "success": true,
   "projectFilePath": "C:\\Users\\mason\\git\\cschatlogger\\Api\\Api.csproj",
   "expectedPackageFiles": [
@@ -110,6 +110,7 @@
     "C:\\Users\\mason\\.nuget\\packages\\nuget.projectmodel\\6.9.1\\nuget.projectmodel.6.9.1.nupkg.sha512",
     "C:\\Users\\mason\\.nuget\\packages\\nuget.protocol\\6.9.1\\nuget.protocol.6.9.1.nupkg.sha512",
     "C:\\Users\\mason\\.nuget\\packages\\nuget.versioning\\6.9.1\\nuget.versioning.6.9.1.nupkg.sha512",
+    "C:\\Users\\mason\\.nuget\\packages\\restsharp\\111.4.1\\restsharp.111.4.1.nupkg.sha512",
     "C:\\Users\\mason\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
     "C:\\Users\\mason\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
     "C:\\Users\\mason\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",

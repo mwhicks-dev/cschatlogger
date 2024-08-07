@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using RestSharp;
 using CSChatLogger.Api;
 using CSChatLogger.Entity;
+using CSChatLogger.Schema;
 
 namespace CSChatLogger.Persistence
 {
@@ -83,8 +84,32 @@ namespace CSChatLogger.Persistence
 
         protected static long GetUserId(Guid token)
         {
-            // TODO: Implement
-            return -1;
+            // Input
+            string ipTag = "PYACCT_URI", portTag = "PYACCT_PORT";
+
+            string? ip = Environment.GetEnvironmentVariable(ipTag);
+            string? port = Environment.GetEnvironmentVariable(portTag);
+
+            // Input validation
+            if (ip == null)
+            {
+                throw new ArgumentException($"Missing environment variable {ipTag}");
+            }
+            if (port == null)
+            {
+                throw new ArgumentException($"Missing environment variable {portTag}");
+            }
+
+            // Implementation
+            var options = new RestClientOptions($"{ip}:{port}/pyacct/1");
+            var client = new RestClient(options);
+
+            var request = new RestRequest("/account");
+            request.AddHeader("token", token.ToString());
+
+            var accountDto = client.Get<AccountDto>(request) ?? throw new UnauthorizedException();
+            
+            return accountDto.id;
         }
 
         public class UnauthorizedException() : Exception { }

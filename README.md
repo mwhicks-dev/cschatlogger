@@ -19,9 +19,27 @@ A description of all of the data structures used in this service can be found [h
 
 This solution was developed using .NET 8.0.300. We have implemented a `classlib` and `webapi` project.
 
+## Quick start
+
+As this is a lower-level service, there is not much "quick start" opportunity. Proceed to set up [PyAcct](https://www.github.com/mwhicks-dev/pyacct/tree/v1.0), and after that set the following required environment variables:
+
+* `PYACCT_URI`: Set this to the HTTP protocall (`http://` if you're not sure or `https://` if you are sure) that PyAcct is running on, followed by the address -- domain name or IP address it is hosted on. If you're running CSChatLogger on the same machine as PyAcct, this will be `localhost` or `127.0.0.1`.
+* `PYACCT_PORT`: Set this to the port you selected to run PyAcct on. If you did not configure this during PyAcct setup, this will be `8000`.
+
+After that, simply run the following, and accept any pop-ups:
+
+```bash
+dotnet dev-certs https --trust
+dotnet run --project Api/ --urls "https://localhost:7225/"
+```
+
+Once completed, you can access the API GUI at [https://localhost:7225/swagger/index.html](https://localhost:7225/swagger/index.html), or use the API documentation linked to in the Introduction to make HTTP calls to the hosting address on port 7225.
+
 ## Known issues and limitations
 
 Message storage and data transfer are unencrypted.
+
+Currently, message storage does not run back to the database.
 
 ## Acknowledgements
 

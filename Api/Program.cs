@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CSChatLogger.Api;
-using CSChatLogger.Entity;
-using System.Configuration;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -11,13 +10,20 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<Context>(options => options
-    .UseSqlServer(builder.Configuration.GetConnectionString("CSChatLogger")));
-builder.Services.Configure<ConnectionStringSettings>(options => options.ConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_DB_URI"));
+    .UseNpgsql(builder.Configuration.GetConnectionString("CSChatLogger")));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var ctx = services.GetRequiredService<Context>();
+    var conn = ctx.Database.GetConnectionString();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

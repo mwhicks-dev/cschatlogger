@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CSChatLogger.Schema;
 using CSChatLogger.Entity;
+using CSChatLogger.Persistence;
 
 namespace CSChatLogger.Api
 {
@@ -10,24 +11,19 @@ namespace CSChatLogger.Api
     {
         private readonly Context _context = context;
 
+        private readonly ChatMessageService service = new(context);
+
         [HttpPost("{chat_id}/message")]
-        public async Task<IActionResult> SendChatMessage(Guid? token, long chat_id, SendChatMessageInput dto)
+        public IActionResult SendChatMessage(Guid? token, long chat_id, SendChatMessageInput dto)
         {
-            if (token == null)
+            try
+            {
+                service.CreateChatMessage(token, chat_id, dto);
+            }
+            catch (ContextService.UnauthorizedException)
+            {
                 return Unauthorized();
-
-            long userId = GetUserId((Guid)token);
-
-            if (!GetUserIsInChat(userId, chat_id).Result)
-                return Unauthorized();
-
-            ChatMessage chatMessage = new();
-            chatMessage.UserId = userId;
-            chatMessage.ChatId = chat_id;
-            chatMessage.Message = dto.message;
-            chatMessage.DateTime = DateTime.UtcNow;
-            _context.ChatMessages.Add(chatMessage);
-            await _context.SaveChangesAsync();
+            }
 
             return NoContent();
         }
@@ -35,36 +31,14 @@ namespace CSChatLogger.Api
         [HttpGet("{chat_id}/message")]
         public async Task<ActionResult<ReadChatMessagesOutput>> ReadChatMessages(Guid? token, long chat_id)
         {
-            if (token == null)
-                return Unauthorized();
-
-            long userId = GetUserId((Guid)token);
-
-            if (!GetUserIsInChat(userId, chat_id).Result)
-                return Unauthorized();
-
-            var dbChatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
-
-            ReadChatMessagesOutput output = new()
+            ReadChatMessagesOutput? output;
+            try
             {
-                messages = []
-            };
-
-            if (dbChatMessages != null)
+                output = await service.ReadChatMessages(token, chat_id);
+            }
+            catch (ContextService.UnauthorizedException)
             {
-                foreach (ChatMessage message in dbChatMessages)
-                {
-                    if (message.ChatId == chat_id)
-                    {
-                        MessageDto messageDto = new()
-                        {
-                            sender = message.UserId,
-                            datetime = message.DateTime,
-                            id = message.MessageId,
-                            message = message.Message
-                        };
-                    }
-                }
+                return Unauthorized();
             }
 
             return output;
@@ -109,38 +83,20 @@ namespace CSChatLogger.Api
         }
 
         [HttpDelete("{chat_id}/message/{message_id}")]
-        public async Task<IActionResult> DeleteChatMessage(Guid? token, long chat_id, long message_id)
+        public IActionResult DeleteChatMessage(Guid? token, long chat_id, long message_id)
         {
-            if (token == null)
-                return Unauthorized();
-
-            long userId = GetUserId((Guid)token);
-
-            if (!GetUserIsInChat(userId, chat_id).Result)
-                return Unauthorized();
-
-            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
-            if (chatMessages == null)
-                return NotFound();
-
-            ChatMessage? chatMessage = null;
-            foreach (ChatMessage tmp in chatMessages)
+            try
             {
-                if (tmp.MessageId == message_id)
-                {
-                    if (tmp.UserId != userId)
-                        return Unauthorized();
-
-                    chatMessage= tmp;
-                    break;
-                }
+                service.DeleteChatMessage(token, chat_id, message_id);
             }
-
-            if (chatMessage == null)
+            catch (ContextService.UnauthorizedException)
+            {
+                return Unauthorized();
+            }
+            catch (ContextService.NotFoundException)
+            {
                 return NotFound();
-
-            _context.ChatMessages.Remove(chatMessage);
-            await _context.SaveChangesAsync();
+            }
 
             return NoContent();
         }

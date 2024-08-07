@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CSChatLogger.Entity;
+using CSChatLogger.Persistence;
 using CSChatLogger.Schema;
 
 namespace CSChatLogger.Api
@@ -8,30 +8,22 @@ namespace CSChatLogger.Api
     [ApiController]
     public class ChatController(Context context) : ControllerBase
     {
-        private readonly Context _context = context;
+        private readonly ChatService service = new(context);
 
         [HttpPost]
-        public async Task<IActionResult> CreateChat(Guid? id, CreateChatInput dto)
+        public IActionResult CreateChat(Guid? token, CreateChatInput dto)
         {
-            if (id == null)
+            try
+            {
+                service.CreateChat(token, dto);
+            }
+            catch (ContextService.UnauthorizedException)
+            {
                 return Unauthorized();
-
-            if (dto.accounts == null)
+            }
+            catch (ContextService.BadRequestException)
             {
                 return BadRequest();
-            }
-
-            Chat chat = new();
-            _context.Chats.Add(chat);
-            await _context.SaveChangesAsync();
-
-            foreach (long account in dto.accounts)
-            {
-                ChatAccount chatAccount = new();
-                chatAccount.ChatId = chat.Id;
-                chatAccount.UserId = account;
-                _context.ChatAccounts.Add(chatAccount);
-                await _context.SaveChangesAsync();
             }
 
             return NoContent();

@@ -11,11 +11,11 @@ namespace CSChatLogger.Api
         private readonly ChatService service = new(context);
 
         [HttpPost]
-        public IActionResult CreateChat([FromHeader] Guid? token, CreateChatInput dto)
+        public async Task<IActionResult> CreateChat([FromHeader] Guid? token, CreateChatInput dto)
         {
             try
             {
-                service.CreateChat(token, dto);
+                await service.CreateChat(token, dto);
             }
             catch (ContextService.UnauthorizedException)
             {

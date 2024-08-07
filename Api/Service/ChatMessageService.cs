@@ -7,7 +7,7 @@ namespace CSChatLogger.Persistence
 {
     public class ChatMessageService(Context context) : ContextService(context), IChatMessage
     {
-        public async void CreateChatMessage(Guid? token, long chatId, SendChatMessageInput dto)
+        public async Task CreateChatMessage(Guid? token, long chatId, SendChatMessageInput dto)
         {
             // Token validation
             long accountId = ValidateAuthorization(token, chatId);
@@ -22,7 +22,7 @@ namespace CSChatLogger.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public async void DeleteChatMessage(Guid? token, long chatId, long messageId)
+        public async Task DeleteChatMessage(Guid? token, long chatId, long messageId)
         {
             // Token validation
             long accountId = ValidateAuthorization(token, chatId, messageId);
@@ -85,7 +85,7 @@ namespace CSChatLogger.Persistence
             return output;
         }
 
-        public async void UpdateChatMessage(Guid? token, long chatId, long messageId, UpdateChatMessageInput dto)
+        public async Task UpdateChatMessage(Guid? token, long chatId, long messageId, UpdateChatMessageInput dto)
         {
             // Token validation
             long accountId = ValidateAuthorization(token, chatId);

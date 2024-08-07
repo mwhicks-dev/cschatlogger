@@ -27,11 +27,11 @@ namespace CSChatLogger.Api
         }
 
         [HttpPut("{chat_id}/account")]
-        public IActionResult AddNewUserToChat([FromHeader] Guid? token, long chat_id, UpdateChatAccountInput dto)
+        public async Task<IActionResult> AddNewUserToChat([FromHeader] Guid? token, long chat_id, UpdateChatAccountInput dto)
         {
             try
             {
-                service.CreateChatAccount(token, chat_id, dto);
+                await service.CreateChatAccount(token, chat_id, dto);
             }
             catch (ContextService.UnauthorizedException)
             {
@@ -46,11 +46,11 @@ namespace CSChatLogger.Api
         }
 
         [HttpDelete("{chat_id}/account")]
-        public IActionResult LeaveChat([FromHeader] Guid? token, long chat_id)
+        public async Task<IActionResult> LeaveChat([FromHeader] Guid? token, long chat_id)
         {
             try
             {
-                service.DeleteChatAccount(token, chat_id);
+                await service.DeleteChatAccount(token, chat_id);
             }
             catch (ContextService.UnauthorizedException)
             {

@@ -72,6 +72,14 @@
               "target": "Package",
               "version": "[8.0.3, )"
             },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.4, )"
+            },
             "RestSharp": {
               "target": "Package",
               "version": "[111.4.1, )"

@@ -24,7 +24,7 @@ namespace CSChatLogger.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ReadChatAccountsOutput> ReadChatAccountsAsync(Guid? token, long chatId)
+        public async Task<ReadChatAccountsOutput> ReadChatAccounts(Guid? token, long chatId)
         {
             // Token validation
             ValidateAuthorization(token, chatId);

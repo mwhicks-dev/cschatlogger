@@ -16,7 +16,7 @@ namespace CSChatLogger.Api
             ReadChatAccountsOutput? output;
             try
             {
-                output = await service.ReadChatAccountsAsync(token, chat_id);
+                output = await service.ReadChatAccounts(token, chat_id);
             }
             catch (ContextService.UnauthorizedException)
             {

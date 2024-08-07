@@ -12,46 +12,16 @@ namespace CSChatLogger.Persistence
 
         protected async Task<bool> GetUserIsInChat(long userId, long chatId)
         {
-            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+            var chatAccount = await _context.FindAsync<ChatAccount>(userId, chatId);
 
-            bool found = false;
-
-            if (chatAccounts != null)
-            {
-                foreach (ChatAccount account in chatAccounts)
-                {
-                    if (account.ChatId == chatId && account.UserId == userId)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            return found;
+            return chatAccount != null;
         }
 
         protected async Task<bool> GetUserSentMessage(long accountId, long chatId,
             long messageId)
         {
-            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
-
-            bool found = false;
-
-            if (chatMessages != null)
-            {
-                foreach (ChatMessage message in chatMessages)
-                {
-                    if (message.MessageId == messageId && message.ChatId 
-                        == chatId && message.UserId == accountId)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            return found;
+            var chatMessage = await _context.ChatMessages.FindAsync(chatId, messageId);
+            return chatMessage != null && chatMessage.UserId == accountId;
         }
 
         protected long ValidateAuthorization(Guid? token)

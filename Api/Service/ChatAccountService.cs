@@ -2,6 +2,7 @@
 using CSChatLogger.Entity;
 using CSChatLogger.Schema;
 using CSChatLogger.UseCase;
+using Microsoft.EntityFrameworkCore;
 
 namespace CSChatLogger.Persistence
 {
@@ -27,13 +28,15 @@ namespace CSChatLogger.Persistence
         public async Task<ReadChatAccountsOutput> ReadChatAccounts(Guid? token, long chatId)
         {
             // Token validation
-            ValidateAuthorization(token, chatId);
+            long accountId = ValidateAuthorization(token, chatId);
 
             // Implementation
-            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+            var chatAccounts = await _context.ChatAccounts.Where(e => e.ChatId == chatId).ToListAsync();
 
-            ReadChatAccountsOutput output = new ReadChatAccountsOutput();
-            output.accounts = [];
+            ReadChatAccountsOutput output = new()
+            {
+                accounts = []
+            };
             if (chatAccounts != null)
             {
                 foreach (ChatAccount account in chatAccounts)
@@ -52,22 +55,18 @@ namespace CSChatLogger.Persistence
             long accountId = ValidateAuthorization(token, chatId);
 
             // Implementation
-            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+            var chatAccount = await _context.ChatAccounts.FindAsync(accountId, chatId) ?? throw new NotFoundException();
 
-            if (chatAccounts != null)
+            _context.ChatAccounts.Remove(chatAccount);
+            await _context.SaveChangesAsync();
+
+            var chatAccounts = await _context.ChatAccounts.Where(e => e.ChatId == chatId).ToListAsync();
+            if (chatAccounts == null || chatAccounts.Count == 0)
             {
-                foreach (ChatAccount account in chatAccounts)
-                {
-                    if (account.ChatId == chatId && account.UserId == accountId)
-                    {
-                        _context.ChatAccounts.Remove(account);
-                        await _context.SaveChangesAsync();
-                    }
-                }
+                await _context.ChatAccounts.Where(e => e.ChatId == chatId).ExecuteDeleteAsync();
+                await _context.ChatMessages.Where(e => e.ChatId == chatId).ExecuteDeleteAsync();
+                await _context.Chats.Where(e => e.Id == chatId).ExecuteDeleteAsync();
             }
-
-            // TODO: Check if any accounts remain in chat
-            // TODO: If no accounts remain in chat, delete all messages and chat
         }
     }
 }

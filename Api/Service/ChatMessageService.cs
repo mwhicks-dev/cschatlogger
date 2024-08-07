@@ -2,6 +2,7 @@
 using CSChatLogger.Entity;
 using CSChatLogger.Schema;
 using CSChatLogger.UseCase;
+using Microsoft.EntityFrameworkCore;
 
 namespace CSChatLogger.Persistence
 {
@@ -28,25 +29,10 @@ namespace CSChatLogger.Persistence
             long accountId = ValidateAuthorization(token, chatId, messageId);
 
             // Implementation
-            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
-            if (chatMessages == null)
-                throw new NotFoundException();
+            var chatMessage = await _context.ChatMessages.FindAsync(chatId, messageId) ?? throw new NotFoundException();
 
-            ChatMessage? chatMessage = null;
-            foreach (ChatMessage tmp in chatMessages)
-            {
-                if (tmp.MessageId == messageId)
-                {
-                    if (tmp.UserId != accountId)
-                        throw new UnauthorizedException();
-
-                    chatMessage = tmp;
-                    break;
-                }
-            }
-
-            if (chatMessage == null)
-                throw new NotFoundException();
+            if (chatMessage.UserId != accountId)
+                throw new UnauthorizedException();
 
             _context.ChatMessages.Remove(chatMessage);
             await _context.SaveChangesAsync();
@@ -58,7 +44,7 @@ namespace CSChatLogger.Persistence
             ValidateAuthorization(token, chatId);
 
             // Implementation
-            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
+            var chatMessages = await _context.ChatMessages.Where(e => e.ChatId == chatId).ToListAsync();
 
             ReadChatMessagesOutput output = new()
             {
@@ -69,16 +55,14 @@ namespace CSChatLogger.Persistence
             {
                 foreach (ChatMessage message in chatMessages)
                 {
-                    if (message.ChatId == chatId)
+                    MessageDto messageDto = new()
                     {
-                        MessageDto messageDto = new()
-                        {
-                            sender = message.UserId,
-                            datetime = message.DateTime,
-                            id = message.MessageId,
-                            message = message.Message
-                        };
-                    }
+                        sender = message.UserId,
+                        datetime = message.DateTime,
+                        id = message.MessageId,
+                        message = message.Message
+                    };
+                    output.messages.Add(messageDto);
                 }
             }
 
@@ -91,22 +75,7 @@ namespace CSChatLogger.Persistence
             long accountId = ValidateAuthorization(token, chatId);
 
             // Implementation
-            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>() ?? throw new NotFoundException();
-            ChatMessage? chatMessage = null;
-            foreach (ChatMessage tmp in chatMessages)
-            {
-                if (tmp.ChatId == chatId && tmp.MessageId == messageId)
-                {
-                    if (tmp.UserId != accountId)
-                        throw new UnauthorizedException();
-
-                    chatMessage = tmp;
-                    break;
-                }
-            }
-
-            if (chatMessage == null)
-                throw new NotFoundException();
+            var chatMessage = await _context.ChatMessages.FindAsync(chatId, messageId) ?? throw new NotFoundException();
 
             chatMessage.Message = dto.message;
             _context.ChatMessages.Add(chatMessage);

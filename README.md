@@ -25,6 +25,7 @@ As this is a lower-level service, there is not much "quick start" opportunity. P
 
 * `PYACCT_URI`: Set this to the HTTP protocall (`http://` if you're not sure or `https://` if you are sure) that PyAcct is running on, followed by the address -- domain name or IP address it is hosted on. If you're running CSChatLogger on the same machine as PyAcct, this will be `localhost` or `127.0.0.1`.
 * `PYACCT_PORT`: Set this to the port you selected to run PyAcct on. If you did not configure this during PyAcct setup, this will be `8000`.
+* `CUSTOMCONNSTR_DB_URI`: Set this to the connection URI you need to use for your database. For instance, PostgreSQL has [formatting docs for URIs](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS). This should look pretty similar to your `PYACCT_DATABASE_URL`, but with a different scheme.
 
 After that, simply run the following, and accept any pop-ups:
 

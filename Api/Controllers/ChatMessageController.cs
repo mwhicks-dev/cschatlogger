@@ -11,7 +11,7 @@ namespace CSChatLogger.Api
         private readonly ChatMessageService service = new(context);
 
         [HttpPost("{chat_id}/message")]
-        public IActionResult SendChatMessage(Guid? token, long chat_id, SendChatMessageInput dto)
+        public IActionResult SendChatMessage([FromHeader] Guid? token, long chat_id, SendChatMessageInput dto)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace CSChatLogger.Api
         }
 
         [HttpGet("{chat_id}/message")]
-        public async Task<ActionResult<ReadChatMessagesOutput>> ReadChatMessages(Guid? token, long chat_id)
+        public async Task<ActionResult<ReadChatMessagesOutput>> ReadChatMessages([FromHeader] Guid? token, long chat_id)
         {
             ReadChatMessagesOutput? output;
             try
@@ -42,7 +42,7 @@ namespace CSChatLogger.Api
         }
 
         [HttpPut("{chat_id}/message/{message_id}")]
-        public IActionResult UpdateChatMessage(Guid? token, long chat_id, long message_id, UpdateChatMessageInput dto)
+        public IActionResult UpdateChatMessage([FromHeader] Guid? token, long chat_id, long message_id, UpdateChatMessageInput dto)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace CSChatLogger.Api
         }
 
         [HttpDelete("{chat_id}/message/{message_id}")]
-        public IActionResult DeleteChatMessage(Guid? token, long chat_id, long message_id)
+        public IActionResult DeleteChatMessage([FromHeader] Guid? token, long chat_id, long message_id)
         {
             try
             {

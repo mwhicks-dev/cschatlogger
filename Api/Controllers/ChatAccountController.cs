@@ -11,7 +11,7 @@ namespace CSChatLogger.Api
         private readonly ChatAccountService service = new(context);
 
         [HttpGet("{chat_id}/account")]
-        public async Task<ActionResult<ReadChatAccountsOutput>> ReadChatAccounts(Guid? token, long chat_id)
+        public async Task<ActionResult<ReadChatAccountsOutput>> ReadChatAccounts([FromHeader] Guid? token, long chat_id)
         {
             ReadChatAccountsOutput? output;
             try
@@ -27,7 +27,7 @@ namespace CSChatLogger.Api
         }
 
         [HttpPut("{chat_id}/account")]
-        public IActionResult AddNewUserToChat(Guid? token, long chat_id, CreateChatAccountInput dto)
+        public IActionResult AddNewUserToChat([FromHeader] Guid? token, long chat_id, UpdateChatAccountInput dto)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace CSChatLogger.Api
         }
 
         [HttpDelete("{chat_id}/account")]
-        public IActionResult LeaveChat(Guid? token, long chat_id)
+        public IActionResult LeaveChat([FromHeader] Guid? token, long chat_id)
         {
             try
             {

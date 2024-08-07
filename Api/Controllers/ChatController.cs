@@ -11,7 +11,7 @@ namespace CSChatLogger.Api
         private readonly ChatService service = new(context);
 
         [HttpPost]
-        public IActionResult CreateChat(Guid? token, CreateChatInput dto)
+        public IActionResult CreateChat([FromHeader] Guid? token, CreateChatInput dto)
         {
             try
             {

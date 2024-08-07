@@ -7,7 +7,7 @@ namespace CSChatLogger.Persistence
 {
     public class ChatAccountService(Context context) : ContextService(context), IChatAccount
     {
-        public async void CreateChatAccount(Guid? token, long chatId, CreateChatAccountInput dto)
+        public async void CreateChatAccount(Guid? token, long chatId, UpdateChatAccountInput dto)
         {
             // Token validation
             ValidateAuthorization(token, chatId);

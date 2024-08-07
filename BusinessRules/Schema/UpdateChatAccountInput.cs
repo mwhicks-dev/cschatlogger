@@ -1,6 +1,6 @@
 ﻿namespace CSChatLogger.Schema;
 
-public class CreateChatAccountInput
+public class UpdateChatAccountInput
 {
 	public long account { get; set; }
 }

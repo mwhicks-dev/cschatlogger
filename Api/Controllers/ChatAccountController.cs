@@ -1,112 +1,121 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CSChatLogger.Api;
 using CSChatLogger.Entity;
+using CSChatLogger.Schema;
 
 namespace Api.Controllers
 {
-    [Route("/cschat/1/chat/tmp2")]
+    [Route("/cschat/1/chat")]
     [ApiController]
     public class ChatAccountController(Context context) : ControllerBase
     {
         private readonly Context _context = context;
 
-        // GET: api/ChatAccount
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ChatAccount>>> GetChatAccounts()
+        [HttpGet("{chat_id}/account")]
+        public async Task<ActionResult<ReadChatAccountsOutput>> ReadChatAccounts(Guid? token, long chat_id)
         {
-            return await _context.ChatAccounts.ToListAsync();
-        }
+            if (token == null)
+                return Unauthorized();
 
-        // GET: api/ChatAccount/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChatAccount>> GetChatAccount(long id)
-        {
-            var chatAccount = await _context.ChatAccounts.FindAsync(id);
+            long userId = GetUserId((Guid)token);
 
-            if (chatAccount == null)
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            ReadChatAccountsOutput output = new ReadChatAccountsOutput();
+            output.accounts = [];
+            if (chatAccounts != null)
             {
-                return NotFound();
-            }
-
-            return chatAccount;
-        }
-
-        // PUT: api/ChatAccount/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutChatAccount(long id, ChatAccount chatAccount)
-        {
-            if (id != chatAccount.UserId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(chatAccount).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ChatAccountExists(id))
+                foreach (ChatAccount account in chatAccounts)
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
+                    if (account.ChatId == chat_id)
+                        output.accounts.Add(account.UserId);
                 }
             }
 
-            return NoContent();
+            return output;
         }
 
-        // POST: api/ChatAccount
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ChatAccount>> PostChatAccount(ChatAccount chatAccount)
+        [HttpPut("{chat_id}/account")]
+        public async Task<IActionResult> AddNewUserToChat(Guid? token, long chat_id, CreateChatAccountInput dto)
         {
+            if (token == null)
+                return Unauthorized();
+
+            long userId = GetUserId((Guid)token);
+
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            if (GetUserIsInChat(dto.account, chat_id).Result)
+                return Conflict();
+
+            ChatAccount chatAccount = new();
+            chatAccount.UserId = dto.account;
+            chatAccount.ChatId = chat_id;
             _context.ChatAccounts.Add(chatAccount);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (ChatAccountExists(chatAccount.UserId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetChatAccount", new { id = chatAccount.UserId }, chatAccount);
-        }
-
-        // DELETE: api/ChatAccount/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteChatAccount(long id)
-        {
-            var chatAccount = await _context.ChatAccounts.FindAsync(id);
-            if (chatAccount == null)
-            {
-                return NotFound();
-            }
-
-            _context.ChatAccounts.Remove(chatAccount);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ChatAccountExists(long id)
+        [HttpDelete("{chat_id}/account")]
+        public async Task<IActionResult> LeaveChat(Guid? token, long chat_id)
         {
-            return _context.ChatAccounts.Any(e => e.UserId == id);
+            if (token == null)
+                return Unauthorized();
+
+            long userId = GetUserId((Guid) token);
+
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            if (chatAccounts != null)
+            {
+                foreach (ChatAccount account in chatAccounts)
+                {
+                    if (account.ChatId == chat_id && account.UserId == userId)
+                    {
+                        _context.ChatAccounts.Remove(account);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+
+            // TODO: Check if any accounts remain in chat
+            // TODO: If no accounts remain in chat, delete all messages and chat
+
+            return NoContent();
+        }
+
+        private async Task<bool> GetUserIsInChat(long userId, long chatId)
+        {
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            bool found = false;
+
+            if (chatAccounts != null)
+            {
+                foreach (ChatAccount account in chatAccounts)
+                {
+                    if (account.ChatId == chatId && account.UserId == userId)
+                    {
+                        found = true;
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        private static long GetUserId(Guid token)
+        {
+            // TODO: Implement
+            return -1;
         }
     }
 }

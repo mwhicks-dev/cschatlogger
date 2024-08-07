@@ -1,102 +1,144 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CSChatLogger.Api;
+using CSChatLogger.Schema;
 using CSChatLogger.Entity;
 
 namespace Api.Controllers
 {
-    [Route("/cschat/1/chat/tmp1")]
+    [Route("/cschat/1/chat")]
     [ApiController]
     public class ChatMessageController(Context context) : ControllerBase
     {
         private readonly Context _context = context;
 
-        // GET: api/ChatMessage
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ChatMessage>>> GetChatMessages()
+        [HttpPost("{chat_id}/message")]
+        public async Task<IActionResult> SendChatMessage(Guid? token, long chat_id, SendChatMessageInput dto)
         {
-            return await _context.ChatMessages.ToListAsync();
-        }
+            if (token == null)
+                return Unauthorized();
 
-        // GET: api/ChatMessage/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChatMessage>> GetChatMessage(long id)
-        {
-            var chatMessage = await _context.ChatMessages.FindAsync(id);
+            long userId = GetUserId((Guid)token);
 
-            if (chatMessage == null)
-            {
-                return NotFound();
-            }
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
 
-            return chatMessage;
-        }
-
-        // PUT: api/ChatMessage/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutChatMessage(long id, ChatMessage chatMessage)
-        {
-            if (id != chatMessage.ChatId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(chatMessage).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ChatMessageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            ChatMessage chatMessage = new();
+            chatMessage.UserId = userId;
+            chatMessage.ChatId = chat_id;
+            chatMessage.Message = dto.message;
+            chatMessage.DateTime = DateTime.UtcNow;
+            _context.ChatMessages.Add(chatMessage);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // POST: api/ChatMessage
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ChatMessage>> PostChatMessage(ChatMessage chatMessage)
+        [HttpGet("{chat_id}/message")]
+        public async Task<ActionResult<ReadChatMessagesOutput>> ReadChatMessages(Guid? token, long chat_id)
         {
-            _context.ChatMessages.Add(chatMessage);
-            try
+            if (token == null)
+                return Unauthorized();
+
+            long userId = GetUserId((Guid)token);
+
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            var dbChatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
+
+            ReadChatMessagesOutput output = new()
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
+                messages = []
+            };
+
+            if (dbChatMessages != null)
             {
-                if (ChatMessageExists(chatMessage.ChatId))
+                foreach (ChatMessage message in dbChatMessages)
                 {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
+                    if (message.ChatId == chat_id)
+                    {
+                        MessageDto messageDto = new()
+                        {
+                            sender = message.UserId,
+                            datetime = message.DateTime,
+                            id = message.MessageId,
+                            message = message.Message
+                        };
+                    }
                 }
             }
 
-            return CreatedAtAction("GetChatMessage", new { id = chatMessage.ChatId }, chatMessage);
+            return output;
         }
 
-        // DELETE: api/ChatMessage/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteChatMessage(long id)
+        [HttpPut("{chat_id}/message/{message_id}")]
+        public async Task<IActionResult> UpdateChatMessage(Guid? token, long chat_id, long message_id, UpdateChatMessageInput dto)
         {
-            var chatMessage = await _context.ChatMessages.FindAsync(id);
-            if (chatMessage == null)
-            {
+            if (token == null)
+                return Unauthorized();
+
+            long userId = GetUserId((Guid)token);
+
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
+            if (chatMessages == null)
                 return NotFound();
+
+            ChatMessage? chatMessage = null;
+            foreach (ChatMessage tmp in chatMessages)
+            {
+                if (tmp.MessageId == message_id)
+                {
+                    if (tmp.UserId != userId)
+                        return Unauthorized();
+
+                    chatMessage = tmp;
+                    break;
+                }
             }
+
+            if (chatMessage == null)
+                return NotFound();
+
+            chatMessage.Message = dto.message;
+            _context.ChatMessages.Add(chatMessage);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{chat_id}/message/{message_id}")]
+        public async Task<IActionResult> DeleteChatMessage(Guid? token, long chat_id, long message_id)
+        {
+            if (token == null)
+                return Unauthorized();
+
+            long userId = GetUserId((Guid)token);
+
+            if (!GetUserIsInChat(userId, chat_id).Result)
+                return Unauthorized();
+
+            var chatMessages = await _context.FindAsync<IEnumerable<ChatMessage>>();
+            if (chatMessages == null)
+                return NotFound();
+
+            ChatMessage? chatMessage = null;
+            foreach (ChatMessage tmp in chatMessages)
+            {
+                if (tmp.MessageId == message_id)
+                {
+                    if (tmp.UserId != userId)
+                        return Unauthorized();
+
+                    chatMessage= tmp;
+                    break;
+                }
+            }
+
+            if (chatMessage == null)
+                return NotFound();
 
             _context.ChatMessages.Remove(chatMessage);
             await _context.SaveChangesAsync();
@@ -104,9 +146,30 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        private bool ChatMessageExists(long id)
+        private static long GetUserId(Guid token)
         {
-            return _context.ChatMessages.Any(e => e.ChatId == id);
+            // TODO: Implement
+            return -1;
+        }
+
+        private async Task<bool> GetUserIsInChat(long userId, long chatId)
+        {
+            var chatAccounts = await _context.FindAsync<IEnumerable<ChatAccount>>();
+
+            bool found = false;
+
+            if (chatAccounts != null)
+            {
+                foreach (ChatAccount account in chatAccounts)
+                {
+                    if (account.ChatId == chatId && account.UserId == userId)
+                    {
+                        found = true;
+                    }
+                }
+            }
+
+            return found;
         }
     }
 }

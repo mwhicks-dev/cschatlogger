@@ -2,9 +2,9 @@
 
 public class MessageDto
 {
-	public long sender, messageId;
+	public long sender, id;
 
-	public DateTime dateTime;
+	public DateTime datetime;
 
 	public string? message;
 }

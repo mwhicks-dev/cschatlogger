@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CSChatLogger.Api;
 using CSChatLogger.Entity;
 using CSChatLogger.Schema;
@@ -13,8 +12,11 @@ namespace Api.Controllers
         private readonly Context _context = context;
 
         [HttpPost]
-        public async Task<IActionResult> CreateChat(CreateChatInput dto)
+        public async Task<IActionResult> CreateChat(Guid? id, CreateChatInput dto)
         {
+            if (id == null)
+                return Unauthorized();
+
             if (dto.accounts == null)
             {
                 return BadRequest();

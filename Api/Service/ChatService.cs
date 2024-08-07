@@ -9,7 +9,7 @@ namespace CSChatLogger.Persistence
 {
     public class ChatService(Context context) : ContextService(context), IChat
     {
-        public async void CreateChat(Guid? token, CreateChatInput dto)
+        public async Task CreateChat(Guid? token, CreateChatInput dto)
         {
             // Token validation
             long accountId = ValidateAuthorization(token);
@@ -27,13 +27,32 @@ namespace CSChatLogger.Persistence
             await _context.SaveChangesAsync();
 
             foreach (long account in dto.accounts)
-                CreateChatAccount(chat.Id, account);
+                await CreateChatAccount(chat.Id, account);
 
             if (!dto.accounts.Contains(accountId))
-                CreateChatAccount(chat.Id, accountId);
+                await CreateChatAccount(chat.Id, accountId);
         }
 
-        private async void CreateChatAccount(long chatId, long userId)
+        public async Task<ChatsDto> GetChats(Guid? token)
+        {
+            // Token validation
+            long accountId = ValidateAuthorization(token);
+
+            // Implementation
+            var chatAccounts = await _context.ChatAccounts.Where(e => e.UserId == accountId).ToListAsync();
+
+            var output = new ChatsDto
+            {
+                ids = []
+            };
+            foreach (var chatAccount in chatAccounts) {
+                output.ids.Add(chatAccount.ChatId);
+            }
+
+            return output;
+        }
+
+        private async Task CreateChatAccount(long chatId, long userId)
         {
             ChatAccount chatAccount = new();
             chatAccount.ChatId = chatId;

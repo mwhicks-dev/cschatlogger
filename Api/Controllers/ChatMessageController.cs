@@ -11,11 +11,11 @@ namespace CSChatLogger.Api
         private readonly ChatMessageService service = new(context);
 
         [HttpPost("{chat_id}/message")]
-        public IActionResult SendChatMessage([FromHeader] Guid? token, long chat_id, SendChatMessageInput dto)
+        public async Task<IActionResult> SendChatMessage([FromHeader] Guid? token, long chat_id, SendChatMessageInput dto)
         {
             try
             {
-                service.CreateChatMessage(token, chat_id, dto);
+                await service.CreateChatMessage(token, chat_id, dto);
             }
             catch (ContextService.UnauthorizedException)
             {
@@ -42,11 +42,11 @@ namespace CSChatLogger.Api
         }
 
         [HttpPut("{chat_id}/message/{message_id}")]
-        public IActionResult UpdateChatMessage([FromHeader] Guid? token, long chat_id, long message_id, UpdateChatMessageInput dto)
+        public async Task<IActionResult> UpdateChatMessage([FromHeader] Guid? token, long chat_id, long message_id, UpdateChatMessageInput dto)
         {
             try
             {
-                service.UpdateChatMessage(token, chat_id, message_id, dto);
+                await service.UpdateChatMessage(token, chat_id, message_id, dto);
             }
             catch (ContextService.UnauthorizedException)
             {
@@ -61,11 +61,11 @@ namespace CSChatLogger.Api
         }
 
         [HttpDelete("{chat_id}/message/{message_id}")]
-        public IActionResult DeleteChatMessage([FromHeader] Guid? token, long chat_id, long message_id)
+        public async Task<IActionResult> DeleteChatMessage([FromHeader] Guid? token, long chat_id, long message_id)
         {
             try
             {
-                service.DeleteChatMessage(token, chat_id, message_id);
+                await service.DeleteChatMessage(token, chat_id, message_id);
             }
             catch (ContextService.UnauthorizedException)
             {

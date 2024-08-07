@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CSChatLogger.Api;
 using CSChatLogger.Schema;
 using CSChatLogger.Entity;
 
-namespace Api.Controllers
+namespace CSChatLogger.Api
 {
     [Route("/cschat/1/chat")]
     [ApiController]

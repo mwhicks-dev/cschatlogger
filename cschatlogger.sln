@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessRules", "BusinessRu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B855B1EF-8ED2-4F4C-8669-25E4C983BC89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{888B6CD6-1D0A-4F8C-AA1D-1FB25A3797B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B855B1EF-8ED2-4F4C-8669-25E4C983BC89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B855B1EF-8ED2-4F4C-8669-25E4C983BC89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B855B1EF-8ED2-4F4C-8669-25E4C983BC89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{888B6CD6-1D0A-4F8C-AA1D-1FB25A3797B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{888B6CD6-1D0A-4F8C-AA1D-1FB25A3797B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{888B6CD6-1D0A-4F8C-AA1D-1FB25A3797B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{888B6CD6-1D0A-4F8C-AA1D-1FB25A3797B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

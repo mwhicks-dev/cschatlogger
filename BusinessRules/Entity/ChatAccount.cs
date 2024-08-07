@@ -1,25 +1,15 @@
-﻿namespace CSChatLogger.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace CSChatLogger.Entity;
+
+[PrimaryKey(nameof(UserId), nameof(ChatId))]
 public class ChatAccount
 {
-
-	private long chatId;
-
-	private long userId;
-
-	public ChatAccount() {}
-
-	public ChatAccount(long chatId, long userId) 
-	{
-		SetChatId(chatId);
-		SetUserId(userId);
-	}
-
-	public long GetChatId() { return chatId; }
-
-	public long GetUserId() { return userId; }
-
-	public void SetChatId(long chatId) { this.chatId = chatId; }
-
-	public void SetUserId(long userId) { this.userId = userId; }
+    [Column(Order = 0)]
+    public long UserId { get; set; }
+    
+    [ForeignKey("Chat")]
+    [Column(Order = 1)]
+    public long ChatId { get; set; }
 }

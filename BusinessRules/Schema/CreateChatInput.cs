@@ -2,5 +2,5 @@
 
 public class CreateChatInput
 {
-	public List<long>? accounts;
+	public List<long>? accounts { get; set; }
 }

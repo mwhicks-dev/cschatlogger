@@ -2,5 +2,5 @@
 
 public class CreateChatAccountInput
 {
-	public long account;
+	public long account { get; set; }
 }

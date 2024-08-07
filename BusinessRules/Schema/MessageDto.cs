@@ -2,9 +2,10 @@
 
 public class MessageDto
 {
-	public long sender, id;
+	public long id { get; set; }
+	public long sender { get; set; }
 
-	public DateTime datetime;
+	public DateTime datetime { get; set; }
 
-	public string? message;
+    public string? message { get; set; }
 }

@@ -2,5 +2,5 @@
 
 public class SendChatMessageInput
 {
-	public string? message;
+	public string? message { get; set; }
 }

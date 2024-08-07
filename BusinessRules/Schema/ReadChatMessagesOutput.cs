@@ -2,5 +2,5 @@
 
 public class ReadChatMessagesOutput
 {
-	public List<MessageDto>? messages;
+	public List<MessageDto>? messages { get; set; }
 }

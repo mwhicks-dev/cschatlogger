@@ -1,0 +1,12 @@
+{
+  "ConnectionStrings": {
+    "CSChatLogger": "Host=com.hostname.your;Port=5432;Database=your_db_name;Username=your_postgres_username;Password=your_postgres_password;Trust Server Certificate=true;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

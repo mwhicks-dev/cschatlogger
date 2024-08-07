@@ -28,5 +28,21 @@ namespace CSChatLogger.Api
 
             return NoContent();
         }
+
+        [HttpGet]
+        public async Task<ActionResult<ChatsDto>> GetChats([FromHeader] Guid? token)
+        {
+            ChatsDto chats;
+            try
+            {
+                chats = await service.GetChats(token);
+            }
+            catch (ContextService.UnauthorizedException)
+            {
+                return Unauthorized();
+            }
+
+            return chats;
+        }
     }
 }

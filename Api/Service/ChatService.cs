@@ -33,6 +33,25 @@ namespace CSChatLogger.Persistence
                 await CreateChatAccount(chat.Id, accountId);
         }
 
+        public async Task<ChatsDto> GetChats(Guid? token)
+        {
+            // Token validation
+            long accountId = ValidateAuthorization(token);
+
+            // Implementation
+            var chatAccounts = await _context.ChatAccounts.Where(e => e.UserId == accountId).ToListAsync();
+
+            var output = new ChatsDto
+            {
+                ids = []
+            };
+            foreach (var chatAccount in chatAccounts) {
+                output.ids.Add(chatAccount.ChatId);
+            }
+
+            return output;
+        }
+
         private async Task CreateChatAccount(long chatId, long userId)
         {
             ChatAccount chatAccount = new();
